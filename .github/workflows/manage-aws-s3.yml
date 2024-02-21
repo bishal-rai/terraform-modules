@@ -1,0 +1,61 @@
+name: Manage AWS S3
+
+on:
+  workflow_dispatch:
+    inputs:
+      bucketName:
+        description: "Name of the S3 bucket"
+        required: true
+      awsRegion:
+        description: "AWS Region for the cluster"
+        required: true
+      action:
+        description: "Action to perform (apply/destroy)"
+        required: true
+
+jobs:
+  create_s3:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.action == 'apply' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - name: Terraform Init
+        run: terraform init
+        working-directory: Terraform
+      - name: Terraform Format
+        run: terraform fmt
+        working-directory: Terraform
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: Terraform
+      - name: Terraform Apply
+        run: terraform apply -var bucket=${{ github.event.inputs.bucketName }} -var awsRegion=${{ github.event.inputs.awsRegion }} -auto-approve
+        working-directory: Terraform
+
+  destroy_s3:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.action == 'destroy' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - name: Terraform Init
+        run: terraform init
+        working-directory: Terraform
+      - name: Terraform FMT
+        run: terraform fmt
+        working-directory: Terraform
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: Terraform
+      - name: Terraform Destroy
+        run: terraform destroy -var bucket=${{ github.event.inputs.bucketName }} -var awsRegion=${{ github.event.inputs.awsRegion }} -auto-approve
+        working-directory: Terraform

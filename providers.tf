@@ -1,3 +1,3 @@
-provider "aws" {
-  region                  = "us-gov-west-1"
-}
+backend "s3" {
+    bucket = "andrew-tf-state"
+  }

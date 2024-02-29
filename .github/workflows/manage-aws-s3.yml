@@ -14,7 +14,7 @@ on:
         required: true
 
 jobs:
-  intialize:
+  initialize:
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS CLI
@@ -36,6 +36,7 @@ jobs:
         run: terraform validate
         
   create_s3:
+    needs: initialize
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.action == 'apply' }}
     steps:
@@ -43,6 +44,7 @@ jobs:
         run: terraform apply -var bucket=${{ github.event.inputs.bucketName }} -var awsRegion=${{ github.event.inputs.awsRegion }} -auto-approve
 
   destroy_s3:
+    needs: initialize
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.action == 'destroy' }}
     steps:

@@ -16,9 +16,6 @@ on:
 jobs:
   create_s3:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ../s3
     if: ${{ github.event.inputs.action == 'apply' }}
     steps:
       - name: Configure AWS CLI
@@ -30,6 +27,8 @@ jobs:
         uses: actions/checkout@v2
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
+      - name: lsla
+        run: ls -la
       - name: Terraform Init
         run: terraform init
       - name: Terraform Format

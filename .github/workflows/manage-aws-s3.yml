@@ -14,8 +14,9 @@ on:
         required: true
 
 jobs:
-  initialize:
+  create_s3:
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.action == 'apply' }}
     steps:
       - name: Configure AWS CLI
         run: |
@@ -34,19 +35,29 @@ jobs:
         run: terraform fmt
       - name: Terraform Validate
         run: terraform validate
-        
-  create_s3:
-    needs: initialize
-    runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.action == 'apply' }}
-    steps:
       - name: Terraform Apply
         run: terraform apply -var bucket=${{ github.event.inputs.bucketName }} -var awsRegion=${{ github.event.inputs.awsRegion }} -auto-approve
 
   destroy_s3:
-    needs: initialize
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.action == 'destroy' }}
     steps:
+      - name: Configure AWS CLI
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_CLI_PUB }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_CLI_SEC }}
+          aws configure set default.region ${{ github.event.inputs.awsRegion }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Select s3 module
+        run: cd s3
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+      - name: Terraform Init
+        run: terraform init -backend-config "key=s3/${{ github.event.inputs.bucketName }}-tfstate"
+      - name: Terraform FMT
+        run: terraform fmt
+      - name: Terraform Validate
+        run: terraform validate
       - name: Terraform Destroy
         run: terraform destroy -var bucket=${{ github.event.inputs.bucketName }} -var awsRegion=${{ github.event.inputs.awsRegion }} -auto-approve

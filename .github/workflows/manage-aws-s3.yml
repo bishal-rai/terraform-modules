@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: /s3
+        working-directory: s3
     if: ${{ github.event.inputs.action == 'apply' }}
     steps:
       - name: Configure AWS CLI
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: /s3
+        working-directory: s3
     if: ${{ github.event.inputs.action == 'destroy' }}
     steps:
       - name: Configure AWS CLI

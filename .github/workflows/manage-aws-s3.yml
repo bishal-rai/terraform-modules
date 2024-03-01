@@ -43,15 +43,9 @@ jobs:
           aws configure set default.region ${{ github.event.inputs.awsRegion }}
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Select s3 module
-        run: cd s3
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
       - name: Terraform Init
-        run: terraform init -backend-config "key=s3/${{ github.event.inputs.bucketName }}-tfstate"
-      - name: Terraform FMT
-        run: terraform fmt
-      - name: Terraform Validate
-        run: terraform validate
+        run: terraform -chdir=s3 init -backend-config "key=s3/${{ github.event.inputs.bucketName }}-tfstate"
       - name: Terraform Destroy
-        run: terraform destroy -var bucket=${{ github.event.inputs.bucketName }} -var awsRegion=${{ github.event.inputs.awsRegion }} -auto-approve
+        run: terraform -chdir=s3 destroy -var bucket=${{ github.event.inputs.bucketName }} -var awsRegion=${{ github.event.inputs.awsRegion }} -auto-approve

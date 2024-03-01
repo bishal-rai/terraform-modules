@@ -24,7 +24,7 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_CLI_SEC }}
           aws configure set default.region ${{ github.event.inputs.awsRegion }}
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@main
       - name: Select s3 module
         run: cd s3
       - name: Setup Terraform

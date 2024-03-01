@@ -24,17 +24,13 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_CLI_SEC }}
           aws configure set default.region ${{ github.event.inputs.awsRegion }}
       - name: Checkout code
-        uses: actions/checkout@main
+        uses: actions/checkout@v2
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
-        with:
-          tf_actions_subcommand: init -backend-config "key=s3/${{ github.event.inputs.bucketName }}-tfstate"
-          tf_actions_working_dir: './s3'
+      - name: Terraform Init
+        run: terraform -chdir=s3 init -backend-config "key=s3/${{ github.event.inputs.bucketName }}-tfstate"
       - name: Terraform Apply
-        uses: hashicorp/setup-terraform@v1
-        with:
-          tf_actions_subcommand: apply -var bucket=${{ github.event.inputs.bucketName }} -var awsRegion=${{ github.event.inputs.awsRegion }} -auto-approve
-          tf_actions_working_dir: './s3'
+        run: terraform -chdir=s3 apply -var bucket=${{ github.event.inputs.bucketName }} -var awsRegion=${{ github.event.inputs.awsRegion }} -auto-approve
 
   destroy_s3:
     runs-on: ubuntu-latest
